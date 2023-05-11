@@ -4,8 +4,6 @@ import { v4 as uuid } from "uuid";
 
 const DB_FILE_PATH = "./core/db";
 
-console.log("[CRUD]");
-
 type UUID = string;
 
 // nas interfaces podemos definir quais propriedades nosso tipo deve ter,
@@ -49,7 +47,7 @@ function create(content: string): Todo {
 }
 
 // read retorna o tipo de um array das todos: Array<Todo>
-function read(): Array<Todo> {
+export function read(): Array<Todo> {
     const dbString = fs.readFileSync(DB_FILE_PATH, "utf-8");
     const db = JSON.parse(dbString || "{}");
 
@@ -128,13 +126,13 @@ function CLEAR_DB() {
 
 // [SIMULATION]
 
-CLEAR_DB();
-create("Primeira TODO");
+// CLEAR_DB();
+// create("Primeira TODO");
 
-const secondTodo = create("Segunda TODO");
-deleteById(secondTodo.id);
+// const secondTodo = create("Segunda TODO");
+// deleteById(secondTodo.id);
 
-const terceiraTodo = create("Terceira TODO");
-updateContentById(terceiraTodo.id, "Atualizada!");
+// const terceiraTodo = create("Terceira TODO");
+// updateContentById(terceiraTodo.id, "Atualizada!");
 
-console.log(read());
+// console.log(read());
