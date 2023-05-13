@@ -127,7 +127,7 @@ function CLEAR_DB() {
 // [SIMULATION]
 
 // CLEAR_DB();
-// create("Primeira TODO");
+// create("Estudar");
 
 // const secondTodo = create("Segunda TODO");
 // deleteById(secondTodo.id);
