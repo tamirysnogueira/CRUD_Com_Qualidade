@@ -12,10 +12,17 @@ export default function HomePage() {
     const [initialLoadComplete, setInitialLoadComplete] = useState(false);
     const [totalPages, setTotalPages] = useState(0);
     const [page, setPage] = useState(1);
+    const [search, setSearch] = useState("");
     const [isLoading, setIsLoading] = useState(true);
     const [todos, setTodos] = useState<HomeTodo[]>([]);
+    //todos que está aparecendo para o usuário
+    const homeTodos = todoController.filterTodosByContent<HomeTodo>(
+        todos,
+        search
+    );
+
     const hasMorePages = totalPages > page;
-    const hasNoTodos = todos.length === 0 && !isLoading;
+    const hasNoTodos = homeTodos.length === 0 && !isLoading;
 
     //load infos onload
     // useEffect roda toda vez que um componente é mudado,
@@ -64,6 +71,9 @@ export default function HomePage() {
                     <input
                         type="text"
                         placeholder="Filtrar lista atual, ex: Dentista"
+                        onChange={(event) => {
+                            setSearch(event.target.value);
+                        }}
                     />
                 </form>
 
@@ -80,7 +90,7 @@ export default function HomePage() {
                     </thead>
 
                     <tbody>
-                        {todos.map((currentTodo) => {
+                        {homeTodos.map((currentTodo) => {
                             return (
                                 <tr key={currentTodo.id}>
                                     <td>
