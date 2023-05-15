@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { GlobalStyles } from "@ui/theme/GlobalStyles";
 
 import { todoController } from "@ui/controller/todo";
@@ -9,7 +9,8 @@ interface HomeTodo {
 }
 
 export default function HomePage() {
-    const [initialLoadComplete, setInitialLoadComplete] = useState(false);
+    //Usa-se useRef para controlar o fluxo já que não está mudando o estado do componente
+    const initialLoadComplete = useRef(false);
     const [totalPages, setTotalPages] = useState(0);
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
@@ -31,8 +32,8 @@ export default function HomePage() {
     //initialLoadComplete e setInitialLoadComplete, assim o useEffect só será
     //carregado uma vez na página
     useEffect(() => {
-        setInitialLoadComplete(true);
-        if (!initialLoadComplete) {
+        //current é o valor que está setado
+        if (!initialLoadComplete.current) {
             todoController
                 .get({ page })
                 .then(({ todos, pages }) => {
@@ -41,6 +42,7 @@ export default function HomePage() {
                 })
                 .finally(() => {
                     setIsLoading(false);
+                    initialLoadComplete.current = true;
                 });
         }
     }, []);
