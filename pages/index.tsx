@@ -9,20 +9,34 @@ interface HomeTodo {
 }
 
 export default function HomePage() {
+    const [initialLoadComplete, setInitialLoadComplete] = useState(false);
     const [totalPages, setTotalPages] = useState(0);
     const [page, setPage] = useState(1);
+    const [isLoading, setIsLoading] = useState(true);
     const [todos, setTodos] = useState<HomeTodo[]>([]);
     const hasMorePages = totalPages > page;
+    const hasNoTodos = todos.length === 0 && !isLoading;
 
     //load infos onload
+    // useEffect roda toda vez que um componente é mudado,
+    //devido a isso, houve bugs quando é direcionado para
+    //a página seguinte das todos. Para resolver utilizou-se as constantes
+    //initialLoadComplete e setInitialLoadComplete, assim o useEffect só será
+    //carregado uma vez na página
     useEffect(() => {
-        todoController.get({ page }).then(({ todos, pages }) => {
-            setTodos((oldTodos) => {
-                return [...oldTodos, ...todos];
-            });
-            setTotalPages(pages);
-        });
-    }, [page]);
+        setInitialLoadComplete(true);
+        if (!initialLoadComplete) {
+            todoController
+                .get({ page })
+                .then(({ todos, pages }) => {
+                    setTodos(todos);
+                    setTotalPages(pages);
+                })
+                .finally(() => {
+                    setIsLoading(false);
+                });
+        }
+    }, []);
 
     return (
         <main>
@@ -83,21 +97,25 @@ export default function HomePage() {
                             );
                         })}
 
-                        {/* <tr>
-                            <td
-                                colSpan={4}
-                                align="center"
-                                style={{ textAlign: "center" }}
-                            >
-                                Carregando...
-                            </td>
-                        </tr> */}
+                        {isLoading && (
+                            <tr>
+                                <td
+                                    colSpan={4}
+                                    align="center"
+                                    style={{ textAlign: "center" }}
+                                >
+                                    Carregando...
+                                </td>
+                            </tr>
+                        )}
 
-                        {/* <tr>
-                            <td colSpan={4} align="center">
-                                Nenhum item encontrado
-                            </td>
-                        </tr> */}
+                        {hasNoTodos && (
+                            <tr>
+                                <td colSpan={4} align="center">
+                                    Nenhum item encontrado
+                                </td>
+                            </tr>
+                        )}
 
                         {hasMorePages && (
                             <tr>
@@ -109,7 +127,24 @@ export default function HomePage() {
                                     <button
                                         data-type="load-more"
                                         onClick={() => {
-                                            setPage(page + 1);
+                                            setIsLoading(true);
+                                            const nextPage = page + 1;
+                                            setPage(nextPage);
+
+                                            todoController
+                                                .get({ page: nextPage })
+                                                .then(({ todos, pages }) => {
+                                                    setTodos((oldTodos) => {
+                                                        return [
+                                                            ...oldTodos,
+                                                            ...todos,
+                                                        ];
+                                                    });
+                                                    setTotalPages(pages);
+                                                })
+                                                .finally(() => {
+                                                    setIsLoading(false);
+                                                });
                                         }}
                                     >
                                         Página {page} de {totalPages}, Carregar
